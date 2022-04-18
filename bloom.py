@@ -14,7 +14,7 @@ class HashFunction:
         return mmh3.hash128(key,self.seed) % self.array_size
 
 class BloomFilter: #construct a bloomfilter based on a dataset
-    def constructBloomFilter(n: int,targetProbability = 0.1):
+    def constructBloomFilter(n: int,targetProbability = 0.0000001):
         #returns the empty bloomFilter bitarray and the hash functions 
         #n: expected number of items initially in the bloom filter
         #targetProbability: is the expected number of false positives
@@ -28,15 +28,15 @@ class BloomFilter: #construct a bloomfilter based on a dataset
             fib3 = fib2 + fib1
             fib1 = fib2
             fib2 = fib3  
-            hash_functions.append(HashFunction(fib3,m)) #
+            hash_functions.append(HashFunction(fib3,m))
         
         bloomFilter = bitarray(m)
         return (bloomFilter, hash_functions)
 
-    def __init__(self, size: int, p = 0.1):
+    def __init__(self, size: int, p = 0.0000001): #initialize bloom filter
         self.array, self.hash_functions = BloomFilter.constructBloomFilter(size,p)
     
-    def lookup(self,element: str):
+    def lookup(self,element: str): #check if value in bloom filter
         for hash in self.hash_functions:
             hashedIndex: int = hash(element)
             if self.array[hashedIndex] == False:
@@ -57,10 +57,10 @@ class BloomFilter: #construct a bloomfilter based on a dataset
 
 
 arguments = sys.argv
+#capture the paths of the CSV's
 if len(arguments) >= 3:
     emailListCSV = arguments[1]
     emailTestCSV = arguments[2]
-    print(emailListCSV,emailTestCSV)
     emailList = []
     with open(emailListCSV, 'r') as csvfile:
         emailreader = csv.reader(csvfile)
@@ -85,7 +85,7 @@ if len(arguments) >= 3:
             for email in emailreader:
                 if email:
                     elementFound = emailBloomFilter.lookup(email[0])
-                    if elementFound:
+                    if elementFound: 
                         csvwriter.writerow((email,"Probably in the DB"))
                     else:
                         csvwriter.writerow((email,"Not in the DB"))
